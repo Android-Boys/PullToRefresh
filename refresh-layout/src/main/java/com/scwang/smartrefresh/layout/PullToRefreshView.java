@@ -7,27 +7,17 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseViewHolder;
-import com.scwang.smartrefresh.layout.api.DefaultRefreshFooterCreator;
 import com.scwang.smartrefresh.layout.api.DefaultRefreshHeaderCreator;
-import com.scwang.smartrefresh.layout.api.RefreshFooter;
 import com.scwang.smartrefresh.layout.api.RefreshHeader;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
-import com.scwang.smartrefresh.layout.constant.RefreshState;
-import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
-import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 import com.scwang.smartrefresh.layout.header.MaterialHeader;
-import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
-import com.scwang.smartrefresh.layout.listener.OnMultiPurposeListener;
-import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshLoadMoreListener;
 import com.scwang.smartrefresh.layout.util.NetworkUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -86,7 +76,7 @@ public class PullToRefreshView extends FrameLayout implements com.scwang.smartre
                     } else {
                         mSmartRefreshLayout.finishRefresh(1000);
                     }
-                }else {
+                } else {
                     Toast.makeText(getContext(), "网络异常,请检查网络", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -138,7 +128,7 @@ public class PullToRefreshView extends FrameLayout implements com.scwang.smartre
         mAdapter.addData(data);
         mSmartRefreshLayout.finishLoadMore();
         mSmartRefreshLayout.setEnableRefresh(true);
-
+        checkShowState(data);
     }
 
     /**
@@ -149,16 +139,17 @@ public class PullToRefreshView extends FrameLayout implements com.scwang.smartre
             showDifferentState(StateView.State.EMPTY);
         } else if (data.size() < PAGENUMBER) {
             showDifferentState(StateView.State.NOPAGE);
-        }else if (data.size()==PAGENUMBER){
+        } else if (data.size() == PAGENUMBER) {
             showDifferentState(StateView.State.NORMAL);
         }
     }
+
     /**
      * 判断是否有网络
      */
-    public boolean checkNetWork(){
-        boolean mb=NetworkUtil.isNetworkConnected(getContext());
-        if (!mb){
+    public boolean checkNetWork() {
+        boolean mb = NetworkUtil.isNetworkConnected(getContext());
+        if (!mb) {
             showDifferentState(StateView.State.NETWORk);
         }
         return mb;
@@ -185,6 +176,7 @@ public class PullToRefreshView extends FrameLayout implements com.scwang.smartre
 
     /**
      * adapter 重写的抽象方法
+     *
      * @param <T>
      */
     public interface ConvertAdapterCallBack<T> {
@@ -216,10 +208,15 @@ public class PullToRefreshView extends FrameLayout implements com.scwang.smartre
 
     @Override
     public void showDifferentState(StateView.State state) {
-        if (StateView.State.NORMAL==state){
+        if (StateView.State.NORMAL == state) {
             mSmartRefreshLayout.setVisibility(VISIBLE);
             mStateView.setVisibility(INVISIBLE);
-        }else {
+        } else if (StateView.State.NOPAGE == state) {
+            mSmartRefreshLayout.finishLoadMore();
+            mSmartRefreshLayout.finishRefresh();
+            mSmartRefreshLayout.setEnableLoadMore(false);
+            mAdapter.notifyDataSetChanged();
+        } else {
             mStateView.showDifferentState(state);
             mSmartRefreshLayout.finishLoadMore();
             mSmartRefreshLayout.finishRefresh();

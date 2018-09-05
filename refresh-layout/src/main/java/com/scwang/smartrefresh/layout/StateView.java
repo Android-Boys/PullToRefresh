@@ -2,8 +2,6 @@ package com.scwang.smartrefresh.layout;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -19,8 +17,7 @@ public class StateView extends FrameLayout {
     private StateCallBack mStateCallBack;
     /**
      * 数据为null
-     * 加载失败
-     * 没有网络
+     * 加载失败,没有网络
      * 数据不足一页
      */
     public enum State {
